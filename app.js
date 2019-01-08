@@ -383,16 +383,26 @@ if (USE_POPULATION)
 }
 else
 {
+    var exportFittest = Math.round(config.evolutionCycles * .01);
+    var exportPopulation = Math.round(config.evolutionCycles * .05);
     for (var i=1; i<=config.evolutionCycles; ++i)
     {
         neat.evolve();
         var fittest = neat.getFittest();
         console.log("After Evolution Cycle %O -- fittest: %O", i, fittest.score);
-        if (i % 1000 == 0)
+        if (i % (exportFittest) == 0)
         {
             var json = JSON.stringify(fittest.toJSON());
-            var filename = "generated/TTO-NN-"+i+"-"+fittest.score+".json";
+            var filename = "generated/fittest-"+i+".json";
             console.log("Exporting to file: %O", filename);
+            fs.writeFileSync(filename, json, 'utf8');
+        }
+
+        if (i % (exportPopulation) == 0)
+        {
+            console.log("Exporting population");
+            var json = JSON.stringify(neat.export());
+            var filename = "generated/population-"+i+".json";
             fs.writeFileSync(filename, json, 'utf8');
         }
     }
