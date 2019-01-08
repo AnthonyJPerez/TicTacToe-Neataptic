@@ -370,6 +370,7 @@ var config = {
 log.setEnabled(false);
 var neat = initialize_neataptic(config);
 
+var USE_POPULATION;
 var PLAY_GENOME;// = "file:///home/ajperez/projects/neataptic/generated/TTO-NN-9900-524.json";
 
 if (PLAY_GENOME)
