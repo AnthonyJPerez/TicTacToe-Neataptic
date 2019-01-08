@@ -370,11 +370,12 @@ var config = {
 log.setEnabled(false);
 var neat = initialize_neataptic(config);
 
-var USE_POPULATION;// = "file:///home/ajperez/projects/neataptic/generated/TTO-NN-9900-524.json";
+var PLAY_GENOME;// = "file:///home/ajperez/projects/neataptic/generated/TTO-NN-9900-524.json";
 
-if (USE_POPULATION)
+if (PLAY_GENOME)
 {
-    var json = fs.readFileSync(new URL(USE_POPULATION));
+    console.log("Playing genome: %O", PLAY_GENOME);
+    var json = fs.readFileSync(new URL(PLAY_GENOME));
     var genome = JSON.parse(json);
     log.setEnabled(true);
     var players = [new RandomPlayer(0), new NEATPlayer(neataptic.Network.fromJSON(genome), 1)];
@@ -383,6 +384,14 @@ if (USE_POPULATION)
 }
 else
 {
+    if (USE_POPULATION)
+    {
+        console.log("Starting from assigned population: %O", USE_POPULATION);
+        var json = fs.readFileSync(new URL(USE_POPULATION));
+        var population = JSON.parse(json);
+        neat.population = population;
+    }
+
     var exportFittest = Math.round(config.evolutionCycles * .01);
     var exportPopulation = Math.round(config.evolutionCycles * .05);
     for (var i=1; i<=config.evolutionCycles; ++i)
