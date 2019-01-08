@@ -389,7 +389,7 @@ else
         console.log("Starting from assigned population: %O", USE_POPULATION);
         var json = fs.readFileSync(new URL(USE_POPULATION));
         var population = JSON.parse(json);
-        neat.population = population;
+        neat.import(population);
     }
 
     var exportFittest = Math.round(config.evolutionCycles * .01);
