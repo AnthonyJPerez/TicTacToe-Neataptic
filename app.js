@@ -415,6 +415,14 @@ else
             var filename = "generated/population-"+i+".json";
             fs.writeFileSync(filename, json, 'utf8');
         }
+
+        if (i % 100 == 0)
+        {
+            console.log("Exporting latest population");
+            var json = JSON.stringify(neat.export());
+            var filename = "generated/population-latest.json";
+            fs.writeFileSync(filename, json, 'utf8');
+        }
     }
     console.log("Done evolving!");
 }
