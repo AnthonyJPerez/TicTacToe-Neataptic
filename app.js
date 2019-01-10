@@ -370,8 +370,8 @@ var config = {
 log.setEnabled(false);
 var neat = initialize_neataptic(config);
 
-var USE_POPULATION;
-var PLAY_GENOME;// = "file:///home/ajperez/projects/neataptic/generated/TTO-NN-9900-524.json";
+var USE_POPULATION = "file:///home/ajperez/projects/neataptic/generated/population-10000.json";
+var PLAY_GENOME;// = "file:///home/ajperez/projects/neataptic/generated/fittest-10000.json";
 
 if (PLAY_GENOME)
 {
@@ -396,7 +396,7 @@ else
         var matches = USE_POPULATION.match("[0-9]+");
         if (matches.length > 0)
         {
-            iterationStart = Number(matches[0]);
+            iterationStart = Number(matches[0]) + 1;
         }
     }
 
