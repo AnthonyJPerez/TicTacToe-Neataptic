@@ -385,17 +385,24 @@ if (PLAY_GENOME)
 }
 else
 {
+    var iterationStart = 1;
     if (USE_POPULATION)
     {
         console.log("Starting from assigned population: %O", USE_POPULATION);
         var json = fs.readFileSync(new URL(USE_POPULATION));
         var population = JSON.parse(json);
         neat.import(population);
+        // If the filename contained a number, assume that number is the iteration count.
+        var matches = USE_POPULATION.match("[0-9]+");
+        if (matches.length > 0)
+        {
+            iterationStart = Number(matches[0]);
+        }
     }
 
     var exportFittest = Math.round(config.evolutionCycles * .01);
     var exportPopulation = Math.round(config.evolutionCycles * .05);
-    for (var i=1; i<=config.evolutionCycles; ++i)
+    for (var i=iterationStart; i<=config.evolutionCycles; ++i)
     {
         neat.evolve();
         var fittest = neat.getFittest();
