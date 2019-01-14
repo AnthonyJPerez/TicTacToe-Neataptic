@@ -364,7 +364,7 @@ function initialize_neataptic(config)
     var fitnessFunction = function(population) { return evaluatePopulation(config, population); };
     var numHidden = randomInt(4);
     var options = {
-        //clear: true, // recommended for recurrent networks
+        clear: true, // recommended for recurrent networks
         elitism: Math.round(config.populationSize * .2), // 20% elitism
         fitnessPopulation: true, // true == passes entire population array to fitness func, else individual genomes
         mutation: neataptic.methods.mutation.ALL,
@@ -453,10 +453,10 @@ else
     {
         neat.evolve();
         var fittest = neat.getFittest();
-        console.log("After Evolution Cycle %O -- fittest: %O", i, fittest.score);
 
         // Test to see if we reached our goal
         var done = true;
+        var numWon = 0;
         for (var j=0; j<100; ++j)
         {
             var players = [fittest, "random"];
@@ -464,9 +464,14 @@ else
             if (scores[0] <= 0)
             {
                 done = false;
-                break;
+            }
+            else
+            {
+                numWon += 1;
             }
         }
+
+        console.log("After Evolution Cycle %O -- fittest: %O -- %O%% wins vs Random", i, fittest.score, numWon);
 
         if (i % (exportFittest) == 0 || done)
         {
