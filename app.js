@@ -337,7 +337,7 @@ function evaluatePopulation(config, population)
 
         // play 'config.rounds' games against a RandomPlayer as well
         var players = [genome, "random"];
-        for (var k=0; k<config.rounds; ++k)
+        for (var k=0; k<config.rounds*(population.length-1); ++k)
         {
             log.Log("Playing genome vs random");
             var scores = playGame(config, players);
