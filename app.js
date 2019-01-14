@@ -65,7 +65,24 @@ class TicTacToe
         var isTie = (this._emptyId == this._winner) ? 0.0 : 1.0; // Score of 0 for ties!
         var roundFactor = TicTacToe.maxRounds() - this.getNumRoundsPlayed() + 1.0; // # rounds remaining plus 1
         var isWinner = (this._winner == player.id) ? 1.0 : -1.0; // positive score for winner, negative for loser
-        return roundFactor * isTie * isWinner;
+        //return roundFactor * isTie * isWinner;
+
+        //
+        // Tie == 1 point, for each player
+        // Loss: -9, -4, -1
+        // Win: 16, 9, 4
+        if (isTie === 0.0)
+        {
+            return 1.0;
+        }
+        else if (isWinner == 1.0)
+        {
+            return Math.pow(roundFactor + 1, 2);
+        }
+        else
+        {
+            return -1 * Math.pow(roundFactor, 2);
+        }
     }
 
     getWinner()
@@ -406,7 +423,7 @@ var config = {
     randomPlayer: RandomPlayer,
     game: TicTacToe,
     rounds: 3,
-    populationSize: 100,
+    populationSize: 150,
     evolutionCycles: 100000
 }
 log.setEnabled(false);
