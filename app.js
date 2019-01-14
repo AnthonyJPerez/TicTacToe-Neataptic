@@ -130,6 +130,10 @@ class TicTacToe
     {
         var b = this._board;
         var t = this._tokens;
+        for (var i in this._players)
+        {
+            log.Log("Player %s [%s] -- Token: %s", i, this._players[i].name, this._tokens[i]);
+        }
         log.Log("%s|%s|%s\n-----\n%s|%s|%s\n-----\n%s|%s|%s",
             t[b[0]], t[b[1]], t[b[2]],
             t[b[3]], t[b[4]], t[b[5]],
@@ -139,9 +143,10 @@ class TicTacToe
 
 class Player
 {
-    constructor(id)
+    constructor(id, name)
     {
         this._id = id;
+        this._name = name;
     }
 
     set id (id)
@@ -153,13 +158,23 @@ class Player
     {
         return this._id;
     }
+
+    set name (name)
+    {
+        this._name = name;
+    }
+
+    get name ()
+    {
+        return this._name;
+    }
 }
 
 class NEATPlayer extends Player
 {
     constructor(genome, id)
     {
-        super(id);
+        super(id, "NEAT");
         this._genome = genome;
     }
 
@@ -232,7 +247,7 @@ class RandomPlayer extends Player
 {
     constructor(id)
     {
-        super(id);
+        super(id, "Random");
     }
 
     getNextMove(game)
@@ -370,8 +385,9 @@ var config = {
 log.setEnabled(false);
 var neat = initialize_neataptic(config);
 
-var USE_POPULATION = "file:///home/ajperez/projects/neataptic/generated/population-10000.json";
-var PLAY_GENOME;// = "file:///home/ajperez/projects/neataptic/generated/fittest-10000.json";
+var START_COUNT_AT = 27001;
+var USE_POPULATION = "file:///home/ajperez/projects/neataptic/generated/population-latest.json";
+var PLAY_GENOME = "file:///home/ajperez/projects/neataptic/generated/fittest-35000.json";
 
 if (PLAY_GENOME)
 {
@@ -385,7 +401,7 @@ if (PLAY_GENOME)
 }
 else
 {
-    var iterationStart = 1;
+    var iterationStart = START_COUNT_AT;
     if (USE_POPULATION)
     {
         console.log("Starting from assigned population: %O", USE_POPULATION);
@@ -394,7 +410,7 @@ else
         neat.import(population);
         // If the filename contained a number, assume that number is the iteration count.
         var matches = USE_POPULATION.match("[0-9]+");
-        if (matches.length > 0)
+        if (matches && matches.length > 0)
         {
             iterationStart = Number(matches[0]) + 1;
         }
@@ -434,4 +450,8 @@ else
     console.log("Done evolving!");
 }
 
-
+//
+// Notes:
+// * refactor code to be more rusable.
+// * while (!done) - either N iterations OR until it can beat a random player %M of the time out of J games
+//
