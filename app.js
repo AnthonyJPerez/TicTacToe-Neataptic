@@ -454,7 +454,21 @@ else
         neat.evolve();
         var fittest = neat.getFittest();
         console.log("After Evolution Cycle %O -- fittest: %O", i, fittest.score);
-        if (i % (exportFittest) == 0)
+
+        // Test to see if we reached our goal
+        var done = true;
+        for (var j=0; j<100; ++j)
+        {
+            var players = [fittest, "random"];
+            var scores = playGame(config, players);
+            if (scores[0] <= 0)
+            {
+                done = false;
+                break;
+            }
+        }
+
+        if (i % (exportFittest) == 0 || done)
         {
             var json = JSON.stringify(fittest.toJSON());
             var filename = "generated/fittest-"+i+".json";
@@ -462,7 +476,7 @@ else
             fs.writeFileSync(filename, json, 'utf8');
         }
 
-        if (i % (exportPopulation) == 0)
+        if (i % (exportPopulation) == 0 || done)
         {
             console.log("Exporting population");
             var json = JSON.stringify(neat.export());
@@ -476,6 +490,12 @@ else
             var json = JSON.stringify(neat.export());
             var filename = "generated/population-latest.json";
             fs.writeFileSync(filename, json, 'utf8');
+        }
+
+        if (done)
+        {
+            log.Log("genome can beat random player without losing after 100 games.");
+            break;
         }
     }
     console.log("Done evolving!");
