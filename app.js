@@ -172,10 +172,10 @@ class Player
 
 class NEATPlayer extends Player
 {
-    constructor(genome, id)
+    constructor(id, options)
     {
         super(id, "NEAT");
-        this._genome = genome;
+        this._genome = options.genome;
     }
 
     static numInputs()
@@ -245,7 +245,7 @@ class NEATPlayer extends Player
 
 class RandomPlayer extends Player
 {
-    constructor(id)
+    constructor(id, options)
     {
         super(id, "Random");
     }
@@ -275,7 +275,17 @@ function playGame(config, genomes)
     var players = [];
     for (var id in genomes)
     {
-        players.push(new config.player(genomes[id], Number(id)));
+        if (genomes[id] === "random")
+        {
+            players.push(new config.randomPlayer(Number(id), {}));
+        }
+        else
+        {
+            var options = {
+                "genome": genomes[id]
+            }
+            players.push(new config.player(Number(id), options));
+        }
     }
     var game = new config.game(players);
     game.play();
@@ -291,23 +301,28 @@ function playGame(config, genomes)
 // score.
 function evaluatePopulation(config, population)
 {
+    log.Log("Evaluating Population")
     // reset all scores
     for (var i in population)
     {
         population[i].score = 0;
     }
 
+    // Evaluate each genome in the population
     for (var i in population)
     {
+        log.Log("Evaluating genome: %O", i);
         i = Number(i);
         var genome = population[i];
         var score = 0;
+
         // Each genome will play the game against every other genome in the population
         // for `config.rounds` number of games
         for (var j=i+1; j<population.length; ++j)
         {
-            log.Log("i: %s, j: %s, length: %s", i, j, population.length);
+            log.Log("Playing genome vs genome -- i: %s, j: %s, length: %s", i, j, population.length);
             var players = [genome, population[j]];
+            // play 'config.rounds' amount of games with the selected genome
             for (var k=0; k<config.rounds; ++k)
             {
                 var scores = playGame(config, players);
@@ -318,6 +333,17 @@ function evaluatePopulation(config, population)
                     log.Log("Player %s new score: %s (%s)", l, players[l].score, scores[l]);
                 }
             }
+        }
+
+        // play 'config.rounds' games against a RandomPlayer as well
+        var players = [genome, "random"];
+        for (var k=0; k<config.rounds; ++k)
+        {
+            log.Log("Playing genome vs random");
+            var scores = playGame(config, players);
+            log.Log("player scores: %O", scores);
+            players[0].score += scores[0];
+            log.Log("Player new score after random game: %s (%s)", players[0].score, scores[0]);
         }
     }
 
@@ -377,25 +403,30 @@ app.listen(3000, function () {
 
 var config = {
     player: NEATPlayer,
+    randomPlayer: RandomPlayer,
     game: TicTacToe,
     rounds: 3,
-    populationSize: 300,
+    populationSize: 100,
     evolutionCycles: 100000
 }
 log.setEnabled(false);
 var neat = initialize_neataptic(config);
 
-var START_COUNT_AT = 27001;
-var USE_POPULATION = "file:///home/ajperez/projects/neataptic/generated/population-latest.json";
-var PLAY_GENOME = "file:///home/ajperez/projects/neataptic/generated/fittest-35000.json";
+var START_COUNT_AT = 0;
+var USE_POPULATION;// = "file:///home/ajperez/projects/neataptic/generated/population-latest.json";
+var PLAY_GENOME;// = "file:///home/ajperez/projects/neataptic/generated/fittest-35000.json";
+
 
 if (PLAY_GENOME)
 {
     console.log("Playing genome: %O", PLAY_GENOME);
     var json = fs.readFileSync(new URL(PLAY_GENOME));
-    var genome = JSON.parse(json);
+    var genomeJson = JSON.parse(json);
     log.setEnabled(true);
-    var players = [new RandomPlayer(0), new NEATPlayer(neataptic.Network.fromJSON(genome), 1)];
+    var neatPlayerOptions = {
+        "genome": neataptic.Network.fromJSON(genomeJson)
+    };
+    var players = [new RandomPlayer(0, {}), new NEATPlayer(1, neatPlayerOptions)];
     var game = new TicTacToe(players);
     game.play();
 }
