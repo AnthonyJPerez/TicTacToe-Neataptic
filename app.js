@@ -429,7 +429,7 @@ var config = {
 log.setEnabled(false);
 var neat = initialize_neataptic(config);
 
-var START_COUNT_AT = 0;
+var START_COUNT_AT = 1;
 var USE_POPULATION;// = "file:///home/ajperez/projects/neataptic/generated/population-latest.json";
 var PLAY_GENOME;// = "file:///home/ajperez/projects/neataptic/generated/fittest-35000.json";
 
@@ -450,6 +450,7 @@ if (PLAY_GENOME)
 else
 {
     var iterationStart = START_COUNT_AT;
+
     if (USE_POPULATION)
     {
         console.log("Starting from assigned population: %O", USE_POPULATION);
@@ -464,6 +465,7 @@ else
         }
     }
 
+    var highestWinRate = 0;
     var exportFittest = Math.round(config.evolutionCycles * .01);
     var exportPopulation = Math.round(config.evolutionCycles * .05);
     for (var i=iterationStart; i<=config.evolutionCycles; ++i)
@@ -488,7 +490,16 @@ else
             }
         }
 
-        console.log("After Evolution Cycle %O -- fittest: %O -- %O%% wins vs Random", i, fittest.score, numWon);
+        if (numWon > highestWinRate)
+        {
+            highestWinRate = numWon;
+            var json = JSON.stringify(fittest.toJSON());
+            var filename = "generated/highest-"+highestWinRate+".json";
+            console.log("Exporting highest to file: %O", filename);
+            fs.writeFileSync(filename, json, 'utf8');
+        }
+
+        console.log("After Evolution Cycle %O -- fittest: %O -- %O%% wins vs Random -- Min: %O", i, fittest.score, numWon, neat.population[neat.popsize-1].score);
 
         if (i % (exportFittest) == 0 || done)
         {
