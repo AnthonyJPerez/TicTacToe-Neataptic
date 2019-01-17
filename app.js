@@ -379,13 +379,13 @@ function initialize_neataptic(config)
     var numInputs = config.player.numInputs();
     var numOutputs = config.player.numOutputs();
     var fitnessFunction = function(population) { return evaluatePopulation(config, population); };
-    var numHidden = randomInt(4);
+    var numHidden = randomInt(10);
     var options = {
         clear: true, // recommended for recurrent networks
-        elitism: Math.round(config.populationSize * .2), // 20% elitism
+        elitism: Math.round(config.populationSize * .25), // 20% elitism
         fitnessPopulation: true, // true == passes entire population array to fitness func, else individual genomes
         mutation: neataptic.methods.mutation.ALL,
-        mutationRate: 0.3,
+        mutationRate: 0.2,
         //mutationAmount: 1,
         popsize: config.populationSize,
         //provenance: Math.round(config.populationSize * .02), // 2% provenance -- copies of the initial random network below:
@@ -423,7 +423,7 @@ var config = {
     randomPlayer: RandomPlayer,
     game: TicTacToe,
     rounds: 3,
-    populationSize: 150,
+    populationSize: 200,
     evolutionCycles: 100000
 }
 log.setEnabled(false);
@@ -431,7 +431,7 @@ var neat = initialize_neataptic(config);
 
 var START_COUNT_AT = 1;
 var USE_POPULATION;// = "file:///home/ajperez/projects/neataptic/generated/population-latest.json";
-var PLAY_GENOME;// = "file:///home/ajperez/projects/neataptic/generated/fittest-35000.json";
+var PLAY_GENOME;// = "file:///home/ajperez/projects/neataptic/generated/highest-98.json";
 
 
 if (PLAY_GENOME)
@@ -476,7 +476,8 @@ else
         // Test to see if we reached our goal
         var done = true;
         var numWon = 0;
-        for (var j=0; j<100; ++j)
+        var numIterations = 1000;
+        for (var j=0; j<numIterations; ++j)
         {
             var players = [fittest, "random"];
             var scores = playGame(config, players);
@@ -490,16 +491,18 @@ else
             }
         }
 
-        if (numWon > highestWinRate)
+        var winRate = Math.round(numWon/numIterations * 100);
+
+        if (winRate > highestWinRate)
         {
-            highestWinRate = numWon;
+            highestWinRate = winRate;
             var json = JSON.stringify(fittest.toJSON());
             var filename = "generated/highest-"+highestWinRate+".json";
             console.log("Exporting highest to file: %O", filename);
             fs.writeFileSync(filename, json, 'utf8');
         }
 
-        console.log("After Evolution Cycle %O -- fittest: %O -- %O%% wins vs Random -- Min: %O", i, fittest.score, numWon, neat.population[neat.popsize-1].score);
+        console.log("After Evolution Cycle %O -- fittest: %O -- %O%% wins vs Random -- Min: %O", i, fittest.score, winRate, neat.population[neat.popsize-1].score);
 
         if (i % (exportFittest) == 0 || done)
         {
